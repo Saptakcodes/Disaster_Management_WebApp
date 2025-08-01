@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <!-- Same head section as flood.html -->
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earthquake Prediction | Disaster Alert System</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+        <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+<body class="bg-white dark:bg-black text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Same header/navbar as flood.html -->
+
+    <!-- Hero Section with Video Background -->
+<section class="relative h-screen flex items-center justify-center overflow-hidden">
+    <style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+
+  <!-- Background Video -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-[-1] opacity-80 dark:opacity-100">
+    <source src="{{ url_for('static', filename='assets/videos/earthquake_features2.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Optional Overlay (for readability) -->
+  <!-- <div class="absolute inset-0 bg-white/20 dark:bg-black/30 z-0"></div> -->
+
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Earthquake Early Warning System</h1>
+            <p class="text-lg md:text-xl max-w-2xl mx-auto">
+            Access AI-driven seismic predictions and alerts to prepare and respond effectively to ground-shaking events.
+            </p>
+            <a href="#earthquakePredictionForm" class="mt-6 inline-block bg-blue-600 dark:bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+            Explore Features
+            </a>
+        </div>
+
+        </section>
+
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-6 text-orange-700 dark:text-orange-400">
+                <i class="fas fa-mountain mr-3"></i>Earthquake Prediction
+            </h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Prediction Form -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                    <h2 class="text-2xl font-bold mb-6 text-orange-700 dark:text-orange-400">Seismic Activity Analysis</h2>
+                    
+                <form id="earthquakePredictionForm" class="prediction-form" data-disaster-type="earthquake" enctype="multipart/form-data">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Location -->
+                    <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
+                    <input type="text" id="location" name="location" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="City or Coordinates" required>
+                    </div>
+
+                    <!-- Upload Time Series CSV -->
+                    <div class="md:col-span-2">
+                    <label for="timeSeriesFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Upload Seismic Data (Last 14 Days)</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="file" id="timeSeriesFile" name="timeSeriesFile" accept=".csv" class="hidden" required>
+                        <button type="button" onclick="document.getElementById('timeSeriesFile').click()" class="text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-1 rounded">
+                        <i class="fas fa-upload mr-1"></i> Upload CSV
+                        </button>
+                        <span id="fileName" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Expected columns: date, longitude, latitude, depth, significance, tsunami</p>
+                    </div>
+
+                    <!-- Historical Data -->
+                    <div>
+                    <label for="historicalData" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Historical Earthquakes (Last 5 Years)</label>
+                    <input type="number" id="historicalData" name="historicalData" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="e.g., 30" required>
+                    </div>
+
+                    <!-- Tectonic Plate -->
+                    <div>
+                    <label for="tectonicPlate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nearest Tectonic Plate</label>
+                    <select id="tectonicPlate" name="tectonicPlate" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                        <option value="">Select plate</option>
+                        <option value="pacific">Pacific Plate</option>
+                        <option value="north_american">North American Plate</option>
+                        <option value="eurasian">Eurasian Plate</option>
+                        <option value="indo_australian">Indo-Australian Plate</option>
+                        <option value="african">African Plate</option>
+                        <option value="antarctic">Antarctic Plate</option>
+                        <option value="south_american">South American Plate</option>
+                        <option value="nazca">Nazca Plate</option>
+                    </select>
+                    </div>
+
+                    <!-- Fault Type -->
+                    <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fault Type</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <label class="flex items-center text-gray-800 dark:text-gray-200">
+                        <input type="radio" name="faultType" value="normal" class="mr-2" checked>
+                        <span>Normal</span>
+                        </label>
+                        <label class="flex items-center text-gray-800 dark:text-gray-200">
+                        <input type="radio" name="faultType" value="reverse" class="mr-2">
+                        <span>Reverse</span>
+                        </label>
+                        <label class="flex items-center text-gray-800 dark:text-gray-200">
+                        <input type="radio" name="faultType" value="strike_slip" class="mr-2">
+                        <span>Strike-Slip</span>
+                        </label>
+                        <label class="flex items-center text-gray-800 dark:text-gray-200">
+                        <input type="radio" name="faultType" value="oblique" class="mr-2">
+                        <span>Oblique</span>
+                        </label>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="mt-8">
+                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                    <i class="fas fa-wave-square mr-2"></i> Analyze Seismic Risk
+                    </button>
+                </div>
+                </form>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="hidden mt-6 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-600"></div>
+                <p class="mt-2 text-gray-600 dark:text-gray-300">Processing time series data with LSTM model...</p>
+                </div>
+
+                <!-- Earthquake Prediction Result (Always present for JS) -->
+                <div id="earthquake-result" class="mt-8 text-center">
+                    <h2 class="text-2xl font-bold text-red-600"></h2>
+                </div>
+
+
+                    
+                    <!-- Time Series Visualization -->
+                    <div id="timeSeriesViz" class="mt-8 hidden">
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Seismic Activity Visualization</h3>
+                        <div class="h-64">
+                            <canvas id="seismicChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Safety Information -->
+                <div class="bg-beige-100 dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                    <h2 class="text-2xl font-bold mb-6 text-orange-700 dark:text-orange-400">Earthquake Safety Tips</h2>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-orange-100 dark:bg-orange-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-home text-orange-600 dark:text-orange-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">Before an Earthquake</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Secure heavy furniture and appliances</li>
+                                    <li>Identify safe spots in each room</li>
+                                    <li>Prepare an emergency kit</li>
+                                    <li>Practice drop, cover, and hold on</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-red-100 dark:bg-red-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">During an Earthquake</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Drop, cover, and hold on</li>
+                                    <li>Stay indoors until shaking stops</li>
+                                    <li>Stay away from windows</li>
+                                    <li>If outside, move to an open area</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-purple-100 dark:bg-purple-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-clinic-medical text-purple-600 dark:text-purple-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">After an Earthquake</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Check for injuries and damages</li>
+                                    <li>Be prepared for aftershocks</li>
+                                    <li>Listen to emergency broadcasts</li>
+                                    <li>Use phone only for emergencies</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-lg">
+                        <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-2">Emergency Contacts</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center text-blue-700 dark:text-blue-200">
+                                <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <span>Local Emergency: 911</span>
+                            </li>
+                            <li class="flex items-center text-blue-700 dark:text-blue-200">
+                                <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <span>Seismic Helpline: 1-800-EARTH-99</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-globe text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <a href="#" class="text-blue-600 dark:text-blue-300 hover:underline">USGS Earthquake Information</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historical Data Section -->
+            <div class="mt-16 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                <h2 class="text-2xl font-bold mb-6 text-orange-700 dark:text-orange-400">Historical Earthquake Data</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Magnitude Distribution</h3>
+                        <div class="h-64">
+                            <canvas id="magnitudeChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Depth vs. Magnitude</h3>
+                        <div class="h-64">
+                            <canvas id="depthMagnitudeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+            <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                <ul class="contact-list space-y-2 text-white">
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-envelope mt-1 mr-2"></i>
+                    <span>alerts@disasterpredict.org</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                    <span>+1 (555) 123-4567</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                    <span>123 Safety Ave, Resilience City</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+            </div>
+            </div>
+        </div>
+        </footer>
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Display file name on file selection
+    const fileInput = document.getElementById('timeSeriesFile');
+    const fileNameDisplay = document.getElementById('fileName');
+    const filePlaceholder = document.getElementById('timeSeries');
+
+    if (fileInput && fileNameDisplay && filePlaceholder) {
+        fileInput.addEventListener('change', function (e) {
+            const fileName = e.target.files[0]?.name || '';
+            fileNameDisplay.textContent = fileName;
+            filePlaceholder.placeholder = fileName ? "File selected: " + fileName : "";
+        });
+    }
+
+    // Earthquake charts
+    const magnitudeCtx = document.getElementById('magnitudeChart')?.getContext('2d');
+    const depthCtx = document.getElementById('depthMagnitudeChart')?.getContext('2d');
+
+    if (magnitudeCtx) {
+        new Chart(magnitudeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['<4.0', '4.0-4.9', '5.0-5.9', '6.0-6.9', '7.0+'],
+                datasets: [{
+                    label: 'Earthquakes',
+                    data: [120, 45, 18, 6, 2],
+                    backgroundColor: '#FF9800',
+                    borderColor: '#F57C00',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    if (depthCtx) {
+        new Chart(depthCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Earthquakes',
+                    data: [
+                        { x: 5, y: 4.2 }, { x: 12, y: 4.5 }, { x: 25, y: 4.8 },
+                        { x: 8, y: 5.1 }, { x: 45, y: 5.4 }, { x: 30, y: 5.8 },
+                        { x: 60, y: 6.2 }, { x: 75, y: 6.5 }, { x: 90, y: 7.1 }
+                    ],
+                    backgroundColor: '#FF5722',
+                    borderColor: '#E64A19',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Depth (km)' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Magnitude' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Floating Pagination Active Highlight
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.floating-pagination a').forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        link.classList.toggle('active', currentPage === linkPage);
+    });
+
+    // Earthquake Prediction AJAX
+    const form = document.getElementById('earthquakePredictionForm');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const resultContainer = document.querySelector('#earthquakePredictionForm ~ div.mt-8.text-center h2');
+
+    if (form && loadingIndicator && resultContainer) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            resultContainer.textContent = '';
+            loadingIndicator.classList.remove('hidden');
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/predict-earthquake', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("HTTP Error " + response.status);
+
+                const data = await response.json();
+                resultContainer.textContent = data.result || "No prediction received.";
+            } catch (error) {
+                console.error(error);
+                resultContainer.textContent = "Error: Unable to fetch prediction.";
+            }
+
+            loadingIndicator.classList.add('hidden');
+        });
+    }
+});
+</script>
+
+</body>
+</html>

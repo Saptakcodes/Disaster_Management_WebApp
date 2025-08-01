@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis & Graphs | Disaster Alert System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+            <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+   <!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+<body class="bg-gray-50 text-gray-800 transition-colors duration-300">
+    <!-- Header/Navbar (same as index.html) -->
+    <header class="sticky top-0 z-50 bg-green-700 text-white shadow-md">
+        <!-- Same navbar as index.html -->
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-8 text-green-700">
+                <i class="fas fa-chart-line mr-3"></i>Analysis & Graphs
+            </h1>
+            
+         <!-- Chart Type Selection -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-green-700 dark:text-green-300">Chart Display Options</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1 dark:text-gray-300">Flood Chart</label>
+          <select id="floodChartType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:text-white">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="pie">Pie</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 dark:text-gray-300">Fire Chart</label>
+          <select id="fireChartType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:text-white">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="pie">Pie</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 dark:text-gray-300">Earthquake Chart</label>
+          <select id="earthquakeChartType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:text-white">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="pie">Pie</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 dark:text-gray-300">Cyclone Chart</label>
+          <select id="cycloneChartType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:text-white">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="pie">Pie</option>
+          </select>
+        </div>
+      </div>
+    </div>
+            
+            <!-- Flood Analysis -->
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-green-700">Flood Analysis</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4">Monthly Flood Frequency</h3>
+                        <div class="h-80">
+                            <canvas id="floodChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-4">Flood Severity by Region</h3>
+                        <div class="h-80">
+                            <canvas id="floodRegionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fire Analysis -->
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-green-700">Forest Fire Analysis</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4">Fire Risk vs Temperature</h3>
+                        <div class="h-80">
+                            <canvas id="fireChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-4">Annual Fire Incidents</h3>
+                        <div class="h-80">
+                            <canvas id="fireAnnualChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Earthquake Analysis -->
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-green-700">Earthquake Analysis</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4">Magnitude Over Time</h3>
+                        <div class="h-80">
+                            <canvas id="earthquakeChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-4">Depth Distribution</h3>
+                        <div class="h-80">
+                            <canvas id="earthquakeDepthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cyclone Analysis -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6 text-green-700">Cyclone Analysis</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4">Distribution by Ocean Basin</h3>
+                        <div class="h-80">
+                            <canvas id="cycloneChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-4">Intensity Categories</h3>
+                        <div class="h-80">
+                            <canvas id="cycloneIntensityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+            <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                <ul class="contact-list space-y-2 text-white">
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-envelope mt-1 mr-2"></i>
+                    <span>alerts@disasterpredict.org</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                    <span>+1 (555) 123-4567</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                    <span>123 Safety Ave, Resilience City</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+            </div>
+            </div>
+        </div>
+        </footer>
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/predictHandlers.js') }}"></script>
+    <script>
+        // Initialize additional charts for this page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Flood region chart
+            const floodRegionCtx = document.getElementById('floodRegionChart').getContext('2d');
+            new Chart(floodRegionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['North', 'South', 'East', 'West', 'Central'],
+                    datasets: [{
+                        label: 'Flood Events',
+                        data: [25, 18, 32, 15, 22],
+                        backgroundColor: [
+                            'rgba(56, 142, 60, 0.7)',
+                            'rgba(46, 125, 50, 0.7)',
+                            'rgba(76, 175, 80, 0.7)',
+                            'rgba(27, 94, 32, 0.7)',
+                            'rgba(104, 159, 56, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(56, 142, 60, 1)',
+                            'rgba(46, 125, 50, 1)',
+                            'rgba(76, 175, 80, 1)',
+                            'rgba(27, 94, 32, 1)',
+                            'rgba(104, 159, 56, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Fire annual chart
+            const fireAnnualCtx = document.getElementById('fireAnnualChart').getContext('2d');
+            new Chart(fireAnnualCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Fire Incidents',
+                        data: [1200, 1350, 1500, 1800, 2100, 2500, 2300, 2600, 2400],
+                        backgroundColor: 'rgba(255, 99, 71, 0.2)',
+                        borderColor: 'rgba(255, 99, 71, 1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Earthquake depth chart
+            const earthquakeDepthCtx = document.getElementById('earthquakeDepthChart').getContext('2d');
+            new Chart(earthquakeDepthCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Earthquakes',
+                        data: [
+                            {x: 4.2, y: 12},
+                            {x: 3.8, y: 8},
+                            {x: 5.1, y: 25},
+                            {x: 4.7, y: 18},
+                            {x: 6.0, y: 32},
+                            {x: 4.5, y: 15},
+                            {x: 5.3, y: 28},
+                            {x: 4.9, y: 22},
+                            {x: 5.7, y: 30},
+                            {x: 4.0, y: 10}
+                        ],
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Magnitude'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Depth (km)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Cyclone intensity chart
+            const cycloneIntensityCtx = document.getElementById('cycloneIntensityChart').getContext('2d');
+            new Chart(cycloneIntensityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tropical Depression', 'Tropical Storm', 'Category 1', 'Category 2', 'Category 3+'],
+                    datasets: [{
+                        data: [20, 30, 25, 15, 10],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(255, 99, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+        // Update active state in floating pagination
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const paginationLinks = document.querySelectorAll('.floating-pagination a');
+    
+    paginationLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (currentPage === linkPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+// Flood monthly frequency chart
+const floodCtx = document.getElementById('floodChart').getContext('2d');
+new Chart(floodCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+            label: 'Floods',
+            data: [3, 4, 5, 6, 7, 8, 9, 6, 4, 3, 2, 1],
+            backgroundColor: 'rgba(33, 150, 243, 0.6)',
+            borderColor: 'rgba(33, 150, 243, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Fire risk vs temperature chart
+const fireCtx = document.getElementById('fireChart').getContext('2d');
+new Chart(fireCtx, {
+    type: 'line',
+    data: {
+        labels: ['20°C', '25°C', '30°C', '35°C', '40°C', '45°C'],
+        datasets: [{
+            label: 'Fire Risk',
+            data: [10, 20, 35, 50, 70, 90],
+            borderColor: 'rgba(255, 87, 34, 1)',
+            backgroundColor: 'rgba(255, 87, 34, 0.3)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Earthquake magnitude over time
+const earthquakeCtx = document.getElementById('earthquakeChart').getContext('2d');
+new Chart(earthquakeCtx, {
+    type: 'line',
+    data: {
+        labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
+        datasets: [{
+            label: 'Average Magnitude',
+            data: [4.1, 4.3, 4.5, 4.7, 4.4, 4.6, 4.8, 4.9, 5.0],
+            borderColor: 'rgba(156, 39, 176, 1)',
+            backgroundColor: 'rgba(156, 39, 176, 0.3)',
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Cyclone distribution chart
+const cycloneCtx = document.getElementById('cycloneChart').getContext('2d');
+new Chart(cycloneCtx, {
+    type: 'pie',
+    data: {
+        labels: ['North Atlantic', 'Eastern Pacific', 'Western Pacific', 'Indian Ocean', 'Southern Hemisphere'],
+        datasets: [{
+            data: [15, 20, 30, 25, 10],
+            backgroundColor: [
+                'rgba(63, 81, 181, 0.7)',
+                'rgba(33, 150, 243, 0.7)',
+                'rgba(0, 188, 212, 0.7)',
+                'rgba(0, 150, 136, 0.7)',
+                'rgba(76, 175, 80, 0.7)'
+            ],
+            borderColor: [
+                'rgba(63, 81, 181, 1)',
+                'rgba(33, 150, 243, 1)',
+                'rgba(0, 188, 212, 1)',
+                'rgba(0, 150, 136, 1)',
+                'rgba(76, 175, 80, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+    </script>
+
+</body>
+</html>

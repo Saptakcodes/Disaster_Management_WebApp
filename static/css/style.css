@@ -1,0 +1,245 @@
+
+
+/* Custom colors */
+
+:root {
+    --green-primary: #388E3C;
+    --green-dark: #2E7D32;
+    --beige-light: #F0EAD6;
+    --beige-medium: #E6D3B3;
+    --beige-dark: #D7CCC8;
+    --sky-blue: #AEDFF7;
+    --text-dark: #333333;
+    --text-light: #FFFFFF;
+    --bg-light: #F5F5F5;
+}
+
+/* Light mode colors */
+.bg-green-700 {
+    background-color: var(--green-primary);
+}
+
+.text-green-700 {
+    color: var(--green-primary);
+}
+
+.bg-grey-100 {
+    background-color: var(--beige-light);
+}
+
+.bg-grey-500 {
+    background-color: var(--beige-medium);
+}
+
+.hover\:bg-grey-600:hover {
+    background-color: var(--beige-dark);
+}
+
+/* Smooth transitions */
+.transition {
+    transition: all 0.3s ease;
+}
+
+/* Custom animations */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 2s infinite;
+}
+
+/* Floating pagination dots */
+.floating-pagination {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 40;
+}
+
+/* Hero section */
+.hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    color: white;
+    position: relative;
+}
+
+/* Card hover effects */
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Alert badges */
+.alert-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero p {
+        font-size: 1.25rem;
+    }
+}
+/* Feature Cards */
+.feature-card {
+    @apply flex items-start p-4 rounded-lg shadow hover:shadow-md transition-all duration-300;
+    @apply bg-white dark:bg-gray-700;
+    @apply border border-gray-200 dark:border-gray-600;
+}
+
+.feature-icon {
+    @apply text-xl mr-3 mt-1;
+    @apply text-green-600 dark:text-green-400;
+}
+
+.feature-title {
+    @apply font-semibold;
+    @apply text-gray-800 dark:text-white;
+}
+
+.feature-desc {
+    @apply text-sm;
+    @apply text-gray-600 dark:text-gray-300;
+}
+
+/* Floating Pagination */
+.floating-pagination {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    padding: 12px 6px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.dark .floating-pagination {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.floating-pagination:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.dark .floating-pagination:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.floating-pagination a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .floating-pagination a {
+    background: rgba(31, 41, 55, 0.7);
+    color: #d1d5db;
+}
+
+.floating-pagination a:hover {
+    transform: scale(1.1);
+    background: #10b981;
+    color: white;
+}
+
+.floating-pagination a.active {
+    background: #10b981;
+    color: white;
+}
+
+.floating-pagination a::before {
+    content: attr(data-title);
+    position: absolute;
+    right: 45px;
+    white-space: nowrap;
+    background: rgba(31, 41, 55, 0.9);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.dark .floating-pagination a::before {
+    background: rgba(255, 255, 255, 0.9);
+    color: #111827;
+}
+
+.floating-pagination a:hover::before {
+    opacity: 1;
+    right: 50px;
+}
+
+.floating-pagination a i {
+    font-size: 14px;
+}
+/* .hover\:glow:hover {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+} */
+.contact-item {
+  transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+  color: #86efac; /* Tailwind's green-300 */
+  transform: scale(1.05);
+}
+
+.contact-item i {
+  color: inherit; /* Inherit color so it changes on hover */
+  transition: color 0.3s ease;
+}
+
+.contact-item span {
+  color: inherit; /* Same for the text */
+  transition: color 0.3s ease;
+}

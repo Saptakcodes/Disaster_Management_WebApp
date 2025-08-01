@@ -1,0 +1,84 @@
+# ---------------------
+# Python: Virtual Environments
+# ---------------------
+.venv/
+ml/.venv/
+env/
+ENV/
+venv/
+*/__pycache__/
+
+# ---------------------
+# Python: Compiled Files
+# ---------------------
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# ---------------------
+# ML/AI: Model & Data Files (Large or binary)
+# ---------------------
+*.pkl
+*.h5
+*.joblib
+*.pt
+*.onnx
+*.tflite
+*.npz
+*.npy
+*.weights
+
+# ---------------------
+# Video, Audio, Media Files (Large)
+# ---------------------
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.flac
+
+# ---------------------
+# DLLs and Native Bindings (Large)
+# ---------------------
+*.dll
+*.dylib
+*.so
+
+# ---------------------
+# Logs, Reports, and Outputs
+# ---------------------
+*.log
+*.out
+*.tmp
+*.bak
+
+# ---------------------
+# OS/Editor/System Files
+# ---------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+*.swp
+*.swo
+
+# ---------------------
+# Node/Frontend (if used)
+# ---------------------
+node_modules/
+dist/
+build/
+
+# ---------------------
+# Jupyter Notebook Checkpoints
+# ---------------------
+.ipynb_checkpoints/
+
+# ---------------------
+# Git Ignore Rule for Everything Inside a Folder (Prevent Partial Commits)
+# ---------------------
+static/assets/videos/
+ml/models/

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Alerts | Disaster Alert System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+    <style>
+        .alert-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .map-container {
+            height: 400px;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .notification {
+            animation: slideIn 0.5s ease-out;
+            transform-origin: top;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-red-600 dark:text-red-400">
+                    <i class="fas fa-triangle-exclamation mr-3"></i>Emergency Alerts
+                </h1>
+                <div class="mt-4 md:mt-0">
+                    <div class="flex items-center">
+                        <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2 animate-pulse"></span>
+                        <span class="text-sm font-medium text-red-600 dark:text-red-400">LIVE ALERTS ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Alert Banner -->
+            <div class="bg-red-600 text-white rounded-xl p-4 mb-8 flex items-center justify-between alert-pulse">
+                <div class="flex items-center">
+                    <i class="fas fa-circle-exclamation text-2xl mr-3"></i>
+                    <div>
+                        <h2 class="font-bold">CRITICAL ALERT: Magnitude 6.2 Earthquake - Indonesia</h2>
+                        <p class="text-sm opacity-90">Tsunami warning issued for coastal areas. Evacuate immediately.</p>
+                    </div>
+                </div>
+                <button class="bg-white text-red-600 px-4 py-1 rounded-full text-sm font-medium hover:bg-red-50 transition">
+                    View Details
+                </button>
+            </div>
+
+            <!-- Alert Dashboard -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Alert Feed -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center">
+                            <i class="fas fa-bell mr-2 text-red-500"></i>Active Alerts
+                            <span class="ml-auto bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs font-medium px-2.5 py-0.5 rounded-full">12 New</span>
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[600px] overflow-y-auto">
+                        <!-- Alert Item - Critical -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition notification">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-red-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-bold text-red-600 dark:text-red-400">CRITICAL: Earthquake</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">2 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Magnitude 6.2 - Indonesia (5.267°S 104.623°E)</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+                                        <span>Tsunami warning issued for coastal areas</span>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded">Evacuation</button>
+                                        <button class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Shelters</button>
+                                        <button class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">Safety Tips</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Alert Item - Warning -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition notification">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-orange-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-bold text-orange-600 dark:text-orange-400">WARNING: Wildfire</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Rapidly spreading fire - California, USA (36.778°N 119.418°W)</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-fire mr-1 text-orange-500"></i>
+                                        <span>3000 acres burned | Evacuations underway</span>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded">Evacuation</button>
+                                        <button class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Road Closures</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Alert Item - Warning -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition notification">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-orange-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-bold text-orange-600 dark:text-orange-400">WARNING: Flood</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">32 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Brahmaputra River at danger level - Bangladesh (23.685°N 90.356°E)</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-water mr-1 text-blue-500"></i>
+                                        <span>120mm rainfall in 24h | Flood defenses breached</span>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Shelters</button>
+                                        <button class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">Safety Tips</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Alert Item - Advisory -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition notification">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-bold text-yellow-600 dark:text-yellow-400">ADVISORY: Cyclone</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">1 hour ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Developing system - Bay of Bengal (15.5°N 88.0°E)</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-wind mr-1 text-purple-500"></i>
+                                        <span>65km/h winds | Expected landfall in 72h</span>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">Preparations</button>
+                                        <button class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">Safety Tips</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Alert Item - Advisory -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition notification">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-bold text-yellow-600 dark:text-yellow-400">ADVISORY: Heatwave</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">2 hours ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Extreme heat warning - Southern Europe (42.0°N 12.5°E)</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-temperature-high mr-1 text-red-500"></i>
+                                        <span>42°C expected | Health risks for vulnerable</span>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded">Cooling Centers</button>
+                                        <button class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">Health Advice</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
+                        <button class="text-green-600 dark:text-green-400 hover:underline font-medium">
+                            View All Alerts <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert Stats & Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                            <i class="fas fa-chart-pie mr-2 text-green-600"></i>Alert Statistics
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <!-- Severity Distribution -->
+                        <div class="mb-8">
+                            <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Alert Severity</h3>
+                            <div class="h-48">
+                                <canvas id="severityChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Type Distribution -->
+                        <div class="mb-8">
+                            <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Alert Types</h3>
+                            <div class="h-48">
+                                <canvas id="typeChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Quick Actions -->
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Quick Actions</h3>
+                            <div class="space-y-2">
+                                <button class="w-full flex items-center justify-between px-4 py-3 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition">
+                                    <span>Send Emergency Alert</span>
+                                    <i class="fas fa-bullhorn"></i>
+                                </button>
+                                <button class="w-full flex items-center justify-between px-4 py-3 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition">
+                                    <span>Activate Response Team</span>
+                                    <i class="fas fa-users-gear"></i>
+                                </button>
+                                <button class="w-full flex items-center justify-between px-4 py-3 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition">
+                                    <span>Share Safety Information</span>
+                                    <i class="fas fa-share-nodes"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Map -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 transition">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                        <i class="fas fa-map-marked-alt mr-2 text-green-600"></i>Alert Heatmap
+                    </h2>
+                </div>
+                <div class="map-container">
+                    <div id="alertMap" class="h-full w-full"></div>
+                </div>
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                        <span class="text-sm font-medium">Critical Alerts</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                        <span class="text-sm font-medium">Warnings</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                        <span class="text-sm font-medium">Advisories</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                        <span class="text-sm font-medium">Information</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Subscriptions -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                        <i class="fas fa-envelope mr-2 text-green-600"></i>Alert Subscriptions
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-4">Notification Preferences</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800 dark:text-white">Email Alerts</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">Receive alerts via email</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800 dark:text-white">SMS Alerts</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">Receive critical alerts via text</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800 dark:text-white">Push Notifications</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">Get instant app notifications</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-4">Alert Types</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="flex items-center">
+                                    <input id="earthquake-alerts" type="checkbox" value="" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked>
+                                    <label for="earthquake-alerts" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-300">Earthquakes</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="flood-alerts" type="checkbox" value="" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked>
+                                    <label for="flood-alerts" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-300">Floods</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="fire-alerts" type="checkbox" value="" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked>
+                                    <label for="fire-alerts" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-300">Fires</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="cyclone-alerts" type="checkbox" value="" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="cyclone-alerts" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-300">Cyclones</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="heatwave-alerts" type="checkbox" value="" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="heatwave-alerts" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-300">Heatwaves</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="lightning-alerts" type="checkbox" value="" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="lightning-alerts" class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-300">Lightning</label>
+                                </div>
+                            </div>
+                            <button class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                                Save Preferences
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+            <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                <ul class="contact-list space-y-2 text-white">
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-envelope mt-1 mr-2"></i>
+                    <span>alerts@disasterpredict.org</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                    <span>+1 (555) 123-4567</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                    <span>123 Safety Ave, Resilience City</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+            </div>
+            </div>
+        </div>
+        </footer>
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize alert map
+            const alertMap = L.map('alertMap').setView([20, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(alertMap);
+
+            // Add heatmap layer (simulated)
+            const heatData = [
+                [-5.267, 104.623, 0.9],  // Indonesia earthquake (critical)
+                [36.778, -119.418, 0.7], // California fire (warning)
+                [23.685, 90.356, 0.7],   // Bangladesh flood (warning)
+                [15.5, 88.0, 0.5],       // Bay of Bengal cyclone (advisory)
+                [42.0, 12.5, 0.5],       // Europe heatwave (advisory)
+                [35.676, 139.650, 0.3],  // Tokyo (info)
+                [40.712, -74.006, 0.3]   // New York (info)
+            ];
+
+            heatData.forEach(point => {
+                const intensity = point[2];
+                let color, radius;
+                
+                if (intensity > 0.8) {
+                    color = '#ef4444'; // red
+                    radius = 20;
+                } else if (intensity > 0.6) {
+                    color = '#f97316'; // orange
+                    radius = 15;
+                } else if (intensity > 0.4) {
+                    color = '#eab308'; // yellow
+                    radius = 10;
+                } else {
+                    color = '#3b82f6'; // blue
+                    radius = 5;
+                }
+                
+                L.circleMarker([point[0], point[1]], {
+                    radius: radius,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(alertMap);
+            });
+
+            // Initialize charts
+            const severityCtx = document.getElementById('severityChart').getContext('2d');
+            new Chart(severityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'Warning', 'Advisory', 'Information'],
+                    datasets: [{
+                        data: [5, 12, 18, 25],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f97316',
+                            '#eab308',
+                            '#3b82f6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Floods', 'Earthquakes', 'Fires', 'Cyclones', 'Heatwaves', 'Others'],
+                    datasets: [{
+                        label: 'Alerts',
+                        data: [15, 8, 12, 5, 7, 3],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#ef4444',
+                            '#f97316',
+                            '#8b5cf6',
+                            '#f59e0b',
+                            '#6b7280'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Simulate new alert notification
+            setTimeout(() => {
+                const alertFeed = document.querySelector('.divide-y');
+                const newAlert = document.createElement('div');
+                newAlert.className = 'p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition notification';
+                newAlert.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 pt-1">
+                            <div class="w-3 h-3 rounded-full bg-red-500 mt-1"></div>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-red-600 dark:text-red-400">CRITICAL: Tsunami</h3>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Just now</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Tsunami detected - Coastal areas at risk</p>
+                            <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-water mr-1 text-blue-500"></i>
+                                <span>First wave expected in 15 minutes</span>
+                            </div>
+                            <div class="mt-3 flex space-x-2">
+                                <button class="text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded">Evacuation</button>
+                                <button class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">Shelters</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                alertFeed.insertBefore(newAlert, alertFeed.firstChild);
+                
+                // Add to map
+                L.circleMarker([-5.267, 104.8], {
+                    radius: 25,
+                    fillColor: '#ef4444',
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(alertMap).bindPopup('<b>Tsunami Warning</b><br>Coastal areas at risk');
+                
+                // Show notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center z-50 animate-bounce';
+                notification.innerHTML = `
+                    <i class="fas fa-bell mr-2"></i>
+                    <span>NEW CRITICAL ALERT: Tsunami Warning</span>
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }, 10000);
+
+            // Animate notification items
+            const notifications = document.querySelectorAll('.notification');
+            notifications.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Update active state in floating pagination
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const paginationLinks = document.querySelectorAll('.floating-pagination a');
+    
+    paginationLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (currentPage === linkPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+    </script>
+</body>
+</html>

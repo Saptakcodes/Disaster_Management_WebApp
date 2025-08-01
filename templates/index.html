@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Prediction & Alert System</title>
+
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/images/logo2.png') }}">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+
+    <!-- Animate.css CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- Tailwind JS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ✅ Dark mode configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        lightgreen: '#d0f0c0'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Animation -->
+    <style>
+        @keyframes pulseSlow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+            }
+        }
+
+        .animate-pulse-slow {
+            animation: pulseSlow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 transition-colors duration-300">
+    <!-- Header/Navbar -->
+<header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+  <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <!-- FontAwesome Icon
+      <i class="fas fa-shield-alt text-2xl"></i> -->
+
+      <!-- Logo Image -->
+      <img src="{{ url_for('static', filename='assets/images/logo2.png') }}"
+     alt="Logo"
+     class="h-10 w-10 rounded-full shadow-md transition-transform duration-500 hover:scale-110 hover:rotate-6" />
+
+
+      <!-- Website Title -->
+      <span class="text-xl font-bold">DisasterAlert</span>
+    </div>
+
+<!-- Desktop Links -->
+          <div class="hidden md:flex space-x-6">
+              <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+              <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+              <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+              <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+              <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+              <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+              <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+              <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+              <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+              <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+              <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">
+                  Login
+              </a>
+          </div>
+
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+<!-- Mobile Links -->
+      <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+          <div class="flex flex-col space-y-3">
+              <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+              <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+              <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+              <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+              <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+              <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+              <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+              <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+              <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+              <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+              <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">
+                  Login
+              </a>
+          </div>
+        </div>
+
+        </div>
+    </header>
+
+
+    <!-- Hero Banner -->
+     <style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+    <section id="hero" class="relative h-screen flex items-center justify-center bg-cover bg-center text-white"
+    style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ url_for('static', filename='assets/images/first-img1.webp') }}');">
+
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">Disaster Prediction & Alert System</h1>
+            <p class="text-xl md:text-2xl mb-8">AI-Driven Early Warning for a Safer Tomorrow</p>
+            <a href="#features" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition">Explore Our Services</a>
+        </div>
+        <a href="#intro" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl text-white"></i>
+        </a>
+    </section>
+
+    
+
+<!-- Introduction -->
+<section id="intro" class="py-16 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-12 text-green-700 dark:text-green-400">
+      What We Do
+    </h2>
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      
+      <!-- Left Content Block -->
+      <div>
+        <p class="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
+          Our <span class="font-semibold text-green-600 dark:text-green-300">AI-Powered Disaster Prediction System</span> offers early warnings for natural disasters, empowering communities to prepare and respond effectively.
+        </p>
+
+        <!-- Features Grid with Animations -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          <!-- Feature 1 -->
+          <div class="flex items-start gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all animate__animated animate__fadeInUp">
+            <i class="fas fa-bolt text-green-600 dark:text-green-300 text-2xl"></i>
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200">Real-time Monitoring</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Environmental surveillance via satellite and sensor data.</p>
+            </div>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="flex items-start gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all animate__animated animate__fadeInUp animate__delay-1s">
+            <i class="fas fa-brain text-green-600 dark:text-green-300 text-2xl"></i>
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200">AI Predictions</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">ML models trained on historical disaster data.</p>
+            </div>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="flex items-start gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all animate__animated animate__fadeInUp animate__delay-2s">
+            <i class="fas fa-bell text-green-600 dark:text-green-300 text-2xl"></i>
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200">Instant Alerts</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Get notified via SMS, email, and app instantly.</p>
+            </div>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="flex items-start gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all animate__animated animate__fadeInUp animate__delay-3s">
+            <i class="fas fa-map-marked-alt text-green-600 dark:text-green-300 text-2xl"></i>
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200">Risk Mapping</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Maps show vulnerable zones and impact levels.</p>
+            </div>
+          </div>
+
+          <!-- Feature 5 (NEW) -->
+          <div class="flex items-start gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all animate__animated animate__fadeInUp animate__delay-4s">
+            <i class="fas fa-cloud-sun-rain text-green-600 dark:text-green-300 text-2xl"></i>
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200">Weather Integration</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Combines weather forecasts for dynamic disaster insights.</p>
+            </div>
+          </div>
+
+          <!-- Feature 6 (NEW) -->
+          <div class="flex items-start gap-4 bg-white dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all animate__animated animate__fadeInUp animate__delay-5s">
+            <i class="fas fa-hands-helping text-green-600 dark:text-green-300 text-2xl"></i>
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 dark:text-gray-200">Relief Coordination</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Supports authorities in planning and dispatching aid efficiently.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Image Block -->
+      <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-lg transition-all duration-300 animate__animated animate__fadeIn">
+        <img src="{{ url_for('static', filename='assets/images/hero-img2.webp') }}" alt="Disaster prediction technology" class="w-full rounded-lg object-cover">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Animate.css CDN (Add to <head> if not already) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Featured Services -->
+<section id="features" class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-12 text-green-700">Our Prediction Services</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <!-- Flood Card -->
+      <div class="bg-beige-100 dark:bg-[#4B2E2E] rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105">
+        <div class="h-48 bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+          <video autoplay muted loop playsinline class="h-full w-full object-cover">
+            <source src="{{ url_for('static', filename='assets/videos/flood_features.mp4') }}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-3 text-green-700 dark:text-green-200">Flood Prediction</h3>
+          <p class="mb-4 text-gray-700 dark:text-green-100">Predict potential flood risks based on rainfall, river levels, and terrain data.</p>
+          <a href="{{ url_for('flood') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">View Prediction</a>
+        </div>
+      </div>
+
+      <!-- Fire Card -->
+      <div class="bg-beige-100 dark:bg-[#4B2E2E] rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105">
+        <div class="h-48 bg-red-100 dark:bg-red-900 flex items-center justify-center">
+          <video autoplay muted loop playsinline class="h-full w-full object-cover">
+            <source src="{{ url_for('static', filename='assets/videos/forestfire_features2.mp4') }}" type="video/mp4" />
+          </video>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-3 text-green-700 dark:text-green-200">Forest Fire Prediction</h3>
+          <p class="mb-4 text-gray-700 dark:text-green-100">Assess fire risks using temperature, humidity, and vegetation data.</p>
+          <a href="{{ url_for('fire') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">View Prediction</a>
+        </div>
+      </div>
+
+      <!-- Earthquake Card -->
+      <div class="bg-beige-100 dark:bg-[#4B2E2E] rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105">
+        <div class="h-48 bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+          <video autoplay muted loop playsinline class="h-full w-full object-cover">
+            <source src="{{ url_for('static', filename='assets/videos/earthquake_features2.mp4') }}" type="video/mp4" />
+          </video>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-3 text-green-700 dark:text-green-200">Earthquake Prediction</h3>
+          <p class="mb-4 text-gray-700 dark:text-green-100">Monitor seismic activity and predict potential earthquake risks.</p>
+          <a href="{{ url_for('earthquake') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">View Prediction</a>
+        </div>
+      </div>
+
+      <!-- Cyclone Card -->
+      <div class="bg-beige-100 dark:bg-[#4B2E2E] rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105">
+        <div class="h-48 bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+          <video autoplay muted loop playsinline class="h-full w-full object-cover">
+            <source src="{{ url_for('static', filename='assets/videos/cyclone_features.mp4') }}" type="video/mp4" />
+          </video>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-3 text-green-700 dark:text-green-200">Cyclone Detection</h3>
+          <p class="mb-4 text-gray-700 dark:text-green-100">Track and predict cyclone paths and intensities.</p>
+          <a href="{{ url_for('cyclone') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">View Prediction</a>
+        </div>
+      </div>
+
+      <!-- Lightning Card -->
+      <div class="bg-beige-100 dark:bg-[#4B2E2E] rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105">
+        <div class="h-48 bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+          <video autoplay muted loop playsinline class="h-full w-full object-cover">
+            <source src="{{ url_for('static', filename='assets/videos/thunderstorm_features2.mp4') }}" type="video/mp4" />
+          </video>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-3 text-green-700 dark:text-green-200">Thunderstorm Risk</h3>
+          <p class="mb-4 text-gray-700 dark:text-green-100">Predict lightning and thunderstorm probabilities in your area.</p>
+          <a href="{{ url_for('thunderstorm') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">View Prediction</a>
+        </div>
+      </div>
+
+      <!-- Heatwave Card -->
+      <div class="bg-beige-100 dark:bg-[#4B2E2E] rounded-xl overflow-hidden shadow-lg transition-transform hover:scale-105">
+        <div class="h-48 bg-red-100 dark:bg-red-800 flex items-center justify-center">
+          <video autoplay muted loop playsinline class="h-full w-full object-cover">
+            <source src="{{ url_for('static', filename='assets/videos/heatwave.mp4') }}" type="video/mp4" />
+          </video>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-3 text-green-700 dark:text-green-200">Heatwave Risk</h3>
+          <p class="mb-4 text-gray-700 dark:text-green-100">Forecast extreme heat conditions and health risks.</p>
+          <a href="{{ url_for('heatwave') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">View Prediction</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+    <!-- Latest Alerts Preview -->
+    <section id="alerts-preview" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-green-700">Latest Alerts</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Alert 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-red-500">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold mb-2">High Risk</span>
+                                <h3 class="text-xl font-bold mb-2">Forest Fire Alert</h3>
+                            </div>
+                            <i class="fas fa-fire text-red-500 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-600 mb-3">Northern California region showing high fire risk due to dry conditions.</p>
+                        <div class="flex justify-between items-center text-sm text-gray-500">
+                            <span>2 hours ago</span>
+                            <a href="{{ url_for('alerts') }}" class="text-green-600 hover:underline">View Details</a>
+
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alert 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-yellow-500">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold mb-2">Medium Risk</span>
+                                <h3 class="text-xl font-bold mb-2">Flood Warning</h3>
+                            </div>
+                            <i class="fas fa-water text-blue-500 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-600 mb-3">Mississippi River basin expected to reach flood stage in 48 hours.</p>
+                        <div class="flex justify-between items-center text-sm text-gray-500">
+                            <span>5 hours ago</span>
+                            <a href="../pages/alerts.html" class="text-green-600 hover:underline">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alert 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-orange-500">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="inline-block px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-semibold mb-2">Heat Advisory</span>
+                                <h3 class="text-xl font-bold mb-2">Extreme Heat</h3>
+                            </div>
+                            <i class="fas fa-temperature-high text-orange-500 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-600 mb-3">Southwest US facing extreme heatwave with temperatures above 110°F.</p>
+                        <div class="flex justify-between items-center text-sm text-gray-500">
+                            <span>1 day ago</span>
+                            <a href="../pages/alerts.html" class="text-green-600 hover:underline">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <a href="../pages/alerts.html" class="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition">View All Alerts</a>
+            </div>
+        </div>
+<!-- Live Analysis Preview -->
+<section id="analysis-preview" class="py-16 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-green-700 dark:text-green-300">Live Analysis</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Graph 1 -->
+            <div class="bg-grey-100 dark:bg-gray-800 p-6 rounded-xl shadow">
+                <h3 class="text-xl font-bold mb-4 text-green-700 dark:text-green-300">Flood Frequency by Month</h3>
+                <div class="h-64 bg-white dark:bg-gray-700 rounded-lg p-4">
+                    <canvas id="floodChartPreview"></canvas>
+                </div>
+                <div class="mt-4 text-right">
+                    <a href="../pages/analysis.html" class="text-green-600 dark:text-green-400 hover:underline">View Full Analysis</a>
+                </div>
+            </div>
+            
+            <!-- Graph 2 -->
+            <div class="bg-beige-100 dark:bg-gray-800 p-6 rounded-xl shadow">
+                <h3 class="text-xl font-bold mb-4 text-green-700 dark:text-green-300">Fire Risk vs. Temperature</h3>
+                <div class="h-64 bg-white dark:bg-gray-700 rounded-lg p-4">
+                    <canvas id="fireChartPreview"></canvas>
+                </div>
+                <div class="mt-4 text-right">
+                    <a href="../pages/analysis.html" class="text-green-600 dark:text-green-400 hover:underline">View Full Analysis</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Call to Action -->
+    <section class="py-16 bg-green-700 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-6">Stay Alert, Stay Safe</h2>
+            <p class="text-xl mb-8 max-w-3xl mx-auto">Sign up for personalized alerts and get critical disaster warnings directly to your phone or email.</p>
+            <div class="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
+                <input type="email" placeholder="Your email address" class="flex-grow px-4 py-3 rounded-lg text-gray-800">
+                <button class="bg-blue-300 hover:bg-green-600 text-green-800 px-6 py-3 rounded-lg font-medium transition">Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+<!-- Floating Pagination at Bottom Center -->
+<div id="paginationDots" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 hidden md:flex flex-row space-x-3 z-40">
+    <a href="#hero" title="Home" class="pagination-dot w-3 h-3 rounded-full bg-green-400 hover:bg-green-600 transition" data-section="hero"></a>
+    <a href="#intro" title="Introduction" class="pagination-dot w-3 h-3 rounded-full bg-green-400 hover:bg-green-600 transition" data-section="intro"></a>
+    <a href="#features" title="Services" class="pagination-dot w-3 h-3 rounded-full bg-green-400 hover:bg-green-600 transition" data-section="features"></a>
+    <a href="#alerts-preview" title="Alerts" class="pagination-dot w-3 h-3 rounded-full bg-green-400 hover:bg-green-600 transition" data-section="alerts-preview"></a>
+    <a href="#analysis-preview" title="Analysis" class="pagination-dot w-3 h-3 rounded-full bg-green-400 hover:bg-green-600 transition" data-section="analysis-preview"></a>
+</div>
+
+<!-- Footer -->
+<footer class="bg-green-800 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            
+            <!-- Logo & Socials -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-white hover:text-green-300"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-white hover:text-green-300"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white hover:text-green-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('index') }}" class="hover:text-green-300 hover:underline transition">Home</a></li>
+                    <li><a href="{{ url_for('alerts') }}" class="hover:text-green-300 hover:underline transition">Alerts</a></li>
+                    <li><a href="{{ url_for('updates') }}" class="hover:text-green-300 hover:underline transition">Recent Updates</a></li>
+                    <li><a href="{{ url_for('analysis') }}" class="hover:text-green-300 hover:underline transition">Analysis</a></li>
+                </ul>
+            </div>
+
+            <!-- Predictions -->
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('flood') }}" class="hover:text-green-300 hover:underline transition">Flood</a></li>
+                    <li><a href="{{ url_for('fire') }}" class="hover:text-green-300 hover:underline transition">Forest Fire</a></li>
+                    <li><a href="{{ url_for('earthquake') }}" class="hover:text-green-300 hover:underline transition">Earthquake</a></li>
+                    <li><a href="{{ url_for('cyclone') }}" class="hover:text-green-300 hover:underline transition">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="font-bold mb-4">Contact Us</h4>
+                <ul class="space-y-2 text-white">
+                    <li class="flex items-start"><i class="fas fa-envelope mt-1 mr-2"></i><span>alerts@disasterpredict.org</span></li>
+                    <li class="flex items-start"><i class="fas fa-phone-alt mt-1 mr-2"></i><span>+1 (555) 123-4567</span></li>
+                    <li class="flex items-start"><i class="fas fa-map-marker-alt mt-1 mr-2"></i><span>123 Safety Ave, Resilience City</span></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:text-green-300 transition">Privacy Policy</a>
+                <a href="#" class="hover:text-green-300 transition">Terms of Service</a>
+                <a href="#" class="hover:text-green-300 transition">Disclaimer</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+
+
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/graphHandlers.js') }}"></script>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById('mobileMenuButton').addEventListener('click', function() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('hidden');
+    });
+
+    // Initialize preview charts
+    document.addEventListener('DOMContentLoaded', function() {
+        const floodCanvas = document.getElementById('floodChartPreview');
+        const fireCanvas = document.getElementById('fireChartPreview');
+
+        if (floodCanvas) {
+            const floodCtx = floodCanvas.getContext('2d');
+            window.floodChart = new Chart(floodCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Flood Events',
+                        data: [5, 8, 12, 15, 20, 25, 28, 26, 18, 12, 8, 6],
+                        backgroundColor: '#388E3C',
+                        borderColor: '#2E7D32',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#000000' }
+                        }
+                    }
+                }
+            });
+        }
+
+        if (fireCanvas) {
+            const fireCtx = fireCanvas.getContext('2d');
+            window.fireChart = new Chart(fireCtx, {
+                type: 'line',
+                data: {
+                    labels: ['60°F', '65°F', '70°F', '75°F', '80°F', '85°F', '90°F', '95°F', '100°F'],
+                    datasets: [{
+                        label: 'Fire Risk Index',
+                        data: [15, 25, 40, 60, 75, 85, 90, 95, 98],
+                        backgroundColor: 'rgba(255, 99, 71, 0.2)',
+                        borderColor: 'rgba(255, 99, 71, 1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#000000' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Floating pagination active state
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const paginationLinks = document.querySelectorAll('.floating-pagination a');
+
+        paginationLinks.forEach(link => {
+            const linkPage = link.getAttribute('href').split('/').pop();
+            if (currentPage === linkPage) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // Navigation dots active state
+        const sections = document.querySelectorAll('section[id]');
+        const dots = document.querySelectorAll('#paginationDots a');
+
+        function updateActiveDot() {
+            let currentSection = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+
+                if (window.scrollY >= sectionTop - 200 && window.scrollY < sectionTop + sectionHeight - 200) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            dots.forEach(dot => {
+                if (dot.getAttribute('data-section') === currentSection) {
+                    dot.classList.add('bg-green-600', 'scale-125', 'shadow-lg');
+                    dot.classList.remove('bg-green-400');
+                } else {
+                    dot.classList.add('bg-green-400');
+                    dot.classList.remove('bg-green-600', 'scale-125', 'shadow-lg');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveDot);
+        updateActiveDot();
+
+        // Smooth scroll for dots
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+
+                if (targetSection) {
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    });
+
+    // Theme initialization
+    if (
+        localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+
+    function updateChartsForTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#ffffff' : '#000000';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+        if (window.floodChart) {
+            window.floodChart.options.scales.x.ticks.color = textColor;
+            window.floodChart.options.scales.y.ticks.color = textColor;
+            window.floodChart.options.scales.x.grid.color = gridColor;
+            window.floodChart.options.scales.y.grid.color = gridColor;
+            window.floodChart.update();
+        }
+
+        if (window.fireChart) {
+            window.fireChart.options.scales.x.ticks.color = textColor;
+            window.fireChart.options.scales.y.ticks.color = textColor;
+            window.fireChart.options.scales.x.grid.color = gridColor;
+            window.fireChart.options.scales.y.grid.color = gridColor;
+            window.fireChart.update();
+        }
+    }
+    
+</script>
+
+</body>
+</html>

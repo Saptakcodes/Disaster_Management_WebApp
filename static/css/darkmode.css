@@ -1,0 +1,67 @@
+/* Dark mode styles */
+.dark {
+    background-color: #121212;
+    color: #FFFFFF;
+}
+
+.dark .bg-green-700 {
+    background-color: #2E7D32;
+}
+
+.dark .bg-beige-100 {
+    background-color: #4E342E;
+}
+
+.dark .bg-white {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+}
+
+.dark .text-gray-800 {
+    color: #E0E0E0;
+}
+
+.dark .text-gray-600 {
+    color: #B0B0B0;
+}
+
+.dark .bg-gray-100 {
+    background-color: #252525;
+}
+
+.dark .bg-beige-500 {
+    background-color: #5D4037;
+}
+
+.dark .hover\:bg-beige-600:hover {
+    background-color: #3E2723;
+}
+
+.dark .card {
+    background-color: #1E1E1E;
+    border-color: #333333;
+}
+
+.dark .alert-badge {
+    background-color: #333333;
+}
+
+.dark .border-green-700 {
+    border-color: #2E7D32;
+}
+
+.dark .text-green-700 {
+    color: #4CAF50;
+}
+
+.dark .text-green-600 {
+    color: #4CAF50;
+}
+
+.dark .bg-green-600 {
+    background-color: #2E7D32;
+}
+
+.dark .hover\:bg-green-700:hover {
+    background-color: #1B5E20;
+}

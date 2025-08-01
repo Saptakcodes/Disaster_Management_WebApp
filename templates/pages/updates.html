@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Updates | Disaster Alert System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+    <style>
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .map-container {
+            height: 400px;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-green-700 dark:text-green-400">
+                    <i class="fas fa-satellite-dish mr-3"></i>Real-time Disaster Updates
+                </h1>
+                <div class="mt-4 md:mt-0 flex items-center space-x-2">
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Last updated: <span id="lastUpdated" class="font-medium">Just now</span></span>
+                    <button id="refreshBtn" class="p-2 bg-green-600 hover:bg-green-700 text-white rounded-full transition">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Map Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 transition">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                            <i class="fas fa-map-marked-alt mr-2 text-green-600"></i>Global Disaster Tracker
+                        </h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-block w-3 h-3 rounded-full bg-red-500 pulse"></span>
+                            <span class="text-sm font-medium">LIVE</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="map-container">
+                    <div id="disasterMap" class="h-full w-full"></div>
+                </div>
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 flex flex-wrap justify-center gap-2">
+                    <div class="flex items-center px-3 py-1 bg-white dark:bg-gray-600 rounded-full shadow-sm">
+                        <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                        <span class="text-xs font-medium">Earthquake</span>
+                    </div>
+                    <div class="flex items-center px-3 py-1 bg-white dark:bg-gray-600 rounded-full shadow-sm">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                        <span class="text-xs font-medium">Flood</span>
+                    </div>
+                    <div class="flex items-center px-3 py-1 bg-white dark:bg-gray-600 rounded-full shadow-sm">
+                        <span class="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                        <span class="text-xs font-medium">Fire</span>
+                    </div>
+                    <div class="flex items-center px-3 py-1 bg-white dark:bg-gray-600 rounded-full shadow-sm">
+                        <span class="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                        <span class="text-xs font-medium">Cyclone</span>
+                    </div>
+                    <div class="flex items-center px-3 py-1 bg-white dark:bg-gray-600 rounded-full shadow-sm">
+                        <span class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                        <span class="text-xs font-medium">Heatwave</span>
+                    </div>
+                    <div class="flex items-center px-3 py-1 bg-white dark:bg-gray-600 rounded-full shadow-sm">
+                        <span class="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>
+                        <span class="text-xs font-medium">Lightning</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Recent Events -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                            <i class="fas fa-bell mr-2 text-red-500"></i>Recent Disaster Events
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- Event Item -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition slide-in">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-red-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-medium text-gray-800 dark:text-white">Magnitude 6.2 Earthquake - Indonesia</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">2 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Depth: 10km | Location: 5.267°S 104.623°E</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+                                        <span>Tsunami warning issued for coastal areas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Event Item -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition slide-in">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-medium text-gray-800 dark:text-white">Major Flood Alert - Bangladesh</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Brahmaputra River at danger level | 120mm rainfall in 24h</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-people-carry mr-1 text-red-500"></i>
+                                        <span>Evacuations underway in low-lying areas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Event Item -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition slide-in">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-orange-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-medium text-gray-800 dark:text-white">Wildfire Spread - California, USA</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">32 min ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">3000 acres burned | 5% containment | Extreme fire weather</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-home mr-1 text-red-500"></i>
+                                        <span>200 homes under evacuation orders</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Event Item -->
+                        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition slide-in">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="w-3 h-3 rounded-full bg-purple-500 mt-1"></div>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-medium text-gray-800 dark:text-white">Cyclone Formation - Bay of Bengal</h3>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">1 hour ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Developing system | 65km/h winds | Expected landfall in 72h</p>
+                                    <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-water mr-1 text-blue-500"></i>
+                                        <span>Storm surge warning for eastern coast</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
+                        <button class="text-green-600 dark:text-green-400 hover:underline font-medium">
+                            View All Events <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Global Stats -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                            <i class="fas fa-globe-americas mr-2 text-green-600"></i>Global Disaster Stats
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <!-- Stat Item -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Active Disasters</span>
+                                <span class="text-lg font-bold text-gray-800 dark:text-white">24</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-red-500 h-2.5 rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <!-- Stat Item -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">People Affected</span>
+                                <span class="text-lg font-bold text-gray-800 dark:text-white">1.2M</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-orange-500 h-2.5 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <!-- Stat Item -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Response Teams</span>
+                                <span class="text-lg font-bold text-gray-800 dark:text-white">48</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 40%"></div>
+                            </div>
+                        </div>
+                        <!-- Distribution Chart -->
+                        <div class="mt-8">
+                            <h3 class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Disaster Distribution</h3>
+                            <div class="h-48">
+                                <canvas id="disasterDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Trends -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 transition">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                        <i class="fas fa-chart-line mr-2 text-green-600"></i>Historical Trends
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-wrap mb-4">
+                        <button class="px-3 py-1 bg-green-600 text-white rounded-full text-sm mr-2 mb-2">Last 7 Days</button>
+                        <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full text-sm mr-2 mb-2">Last 30 Days</button>
+                        <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full text-sm mr-2 mb-2">Last Year</button>
+                        <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full text-sm mr-2 mb-2">All Time</button>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="historicalTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Activities -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                        <i class="fas fa-hands-helping mr-2 text-green-600"></i>Response Activities
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                    <!-- Response Card -->
+                    <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-5 border border-blue-200 dark:border-blue-800 transition hover:shadow-md">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-blue-100 dark:bg-blue-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-ambulance text-blue-600 dark:text-blue-300"></i>
+                            </div>
+                            <h3 class="font-medium text-gray-800 dark:text-white">Medical Teams Deployed</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">12 teams sent to earthquake affected areas in Indonesia</p>
+                        <div class="flex items-center text-xs text-blue-600 dark:text-blue-300">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>Updated 15 minutes ago</span>
+                        </div>
+                    </div>
+                    <!-- Response Card -->
+                    <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-5 border border-green-200 dark:border-green-800 transition hover:shadow-md">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-green-100 dark:bg-green-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-utensils text-green-600 dark:text-green-300"></i>
+                            </div>
+                            <h3 class="font-medium text-gray-800 dark:text-white">Food Aid Distributed</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">5,000 food packets delivered to flood victims in Bangladesh</p>
+                        <div class="flex items-center text-xs text-green-600 dark:text-green-300">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>Updated 1 hour ago</span>
+                        </div>
+                    </div>
+                    <!-- Response Card -->
+                    <div class="bg-orange-50 dark:bg-orange-900/30 rounded-lg p-5 border border-orange-200 dark:border-orange-800 transition hover:shadow-md">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-orange-100 dark:bg-orange-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-fire-extinguisher text-orange-600 dark:text-orange-300"></i>
+                            </div>
+                            <h3 class="font-medium text-gray-800 dark:text-white">Firefighting Efforts</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">15 aircraft deployed to combat California wildfires</p>
+                        <div class="flex items-center text-xs text-orange-600 dark:text-orange-300">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>Updated 2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+            <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                <ul class="contact-list space-y-2 text-white">
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-envelope mt-1 mr-2"></i>
+                    <span>alerts@disasterpredict.org</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                    <span>+1 (555) 123-4567</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                    <span>123 Safety Ave, Resilience City</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+            </div>
+            </div>
+        </div>
+        </footer>
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
+            const map = L.map('disasterMap').setView([20, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Simulate real-time disaster markers
+            const disasters = [
+                { type: 'earthquake', lat: -5.267, lng: 104.623, magnitude: 6.2 },
+                { type: 'flood', lat: 23.685, lng: 90.356, severity: 'high' },
+                { type: 'fire', lat: 36.778, lng: -119.418, area: 3000 },
+                { type: 'cyclone', lat: 15.5, lng: 88.0, category: 1 }
+            ];
+
+            const icons = {
+                earthquake: L.divIcon({
+                    className: 'earthquake-marker',
+                    html: '<div class="earthquake-pulse"></div>',
+                    iconSize: [20, 20]
+                }),
+                flood: L.divIcon({
+                    className: 'flood-marker',
+                    html: '<i class="fas fa-water text-blue-500 text-xl"></i>',
+                    iconSize: [20, 20]
+                }),
+                fire: L.divIcon({
+                    className: 'fire-marker',
+                    html: '<i class="fas fa-fire text-orange-500 text-xl"></i>',
+                    iconSize: [20, 20]
+                }),
+                cyclone: L.divIcon({
+                    className: 'cyclone-marker',
+                    html: '<i class="fas fa-wind text-purple-500 text-xl"></i>',
+                    iconSize: [20, 20]
+                })
+            };
+
+            disasters.forEach(disaster => {
+                const marker = L.marker([disaster.lat, disaster.lng], { icon: icons[disaster.type] }).addTo(map);
+                
+                let popupContent = '';
+                if (disaster.type === 'earthquake') {
+                    popupContent = `<b>Earthquake</b><br>Magnitude: ${disaster.magnitude}`;
+                } else if (disaster.type === 'flood') {
+                    popupContent = `<b>Flood Alert</b><br>Severity: High`;
+                } else if (disaster.type === 'fire') {
+                    popupContent = `<b>Wildfire</b><br>Area: ${disaster.area} acres`;
+                } else if (disaster.type === 'cyclone') {
+                    popupContent = `<b>Cyclone Alert</b><br>Category: ${disaster.category}`;
+                }
+                
+                marker.bindPopup(popupContent);
+            });
+
+            // Initialize charts
+            const distCtx = document.getElementById('disasterDistributionChart').getContext('2d');
+            new Chart(distCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Floods', 'Earthquakes', 'Fires', 'Cyclones', 'Heatwaves', 'Others'],
+                    datasets: [{
+                        data: [35, 25, 20, 12, 5, 3],
+                        backgroundColor: [
+                            '#3B82F6',
+                            '#EF4444',
+                            '#F97316',
+                            '#8B5CF6',
+                            '#F59E0B',
+                            '#6B7280'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const trendsCtx = document.getElementById('historicalTrendsChart').getContext('2d');
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: 'Floods',
+                            data: [12, 15, 18, 22, 25, 28, 30, 28, 25, 20, 15, 12],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Earthquakes',
+                            data: [8, 10, 12, 15, 18, 20, 22, 20, 18, 15, 12, 9],
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Fires',
+                            data: [5, 8, 12, 15, 20, 25, 28, 30, 25, 18, 12, 8],
+                            borderColor: '#F97316',
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Simulate real-time updates
+            function updateTimestamp() {
+                const now = new Date();
+                document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+            }
+
+            // Update every minute
+            updateTimestamp();
+            setInterval(updateTimestamp, 60000);
+
+            // Refresh button
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                this.classList.add('animate-spin');
+                setTimeout(() => {
+                    this.classList.remove('animate-spin');
+                    updateTimestamp();
+                }, 1000);
+            });
+
+            // Add animation to new events
+            const eventItems = document.querySelectorAll('.slide-in');
+            eventItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Update active state in floating pagination
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const paginationLinks = document.querySelectorAll('.floating-pagination a');
+    
+    paginationLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (currentPage === linkPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+    </script>
+</body>
+</html>

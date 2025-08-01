@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flood Prediction | Disaster Alert System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+        <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    
+<!-- Hero Section with Video Background -->
+<section class="relative h-screen flex items-center justify-center overflow-hidden">
+    <style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+
+  <!-- Background Video -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-[-1] opacity-80 dark:opacity-100">
+    <source src="{{ url_for('static', filename='assets/videos/flood.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Optional Overlay (for readability) -->
+  <!-- <div class="absolute inset-0 bg-white/20 dark:bg-black/30 z-0"></div> -->
+
+  <!-- Hero Content -->
+  <div class="relative z-10 text-center px-4">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Real-Time Flood Prediction</h1>
+    <p class="text-lg md:text-xl max-w-2xl mx-auto">
+      Stay ahead of floods with AI-powered prediction and early warning systems tailored to your region.
+    </p>
+    <a href="#floodPredictionForm" class="mt-6 inline-block bg-blue-600 dark:bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+      Explore Features
+    </a>
+  </div>
+
+</section>
+
+
+    
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-6 text-green-700 dark:text-green-400">
+                <i class="fas fa-water mr-3"></i>Flood Prediction
+            </h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Prediction Form -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                    <h2 class="text-2xl font-bold mb-6 text-green-700 dark:text-green-400">Real-time Flood Risk Assessment</h2>
+                    
+                <form id="floodPredictionForm" class="prediction-form" data-disaster-type="flood">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Loop through all 20 model features -->
+                        <div>
+                            <label for="MonsoonIntensity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monsoon Intensity</label>
+                            <input type="number" step="any" name="MonsoonIntensity" id="MonsoonIntensity" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="TopographyDrainage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Topography & Drainage</label>
+                            <input type="number" step="any" name="TopographyDrainage" id="TopographyDrainage" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="RiverManagement" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">River Management</label>
+                            <input type="number" step="any" name="RiverManagement" id="RiverManagement" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="Deforestation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deforestation</label>
+                            <input type="number" step="any" name="Deforestation" id="Deforestation" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="Urbanization" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Urbanization</label>
+                            <input type="number" step="any" name="Urbanization" id="Urbanization" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="ClimateChange" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Climate Change</label>
+                            <input type="number" step="any" name="ClimateChange" id="ClimateChange" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="DamsQuality" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dams Quality</label>
+                            <input type="number" step="any" name="DamsQuality" id="DamsQuality" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="Siltation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Siltation</label>
+                            <input type="number" step="any" name="Siltation" id="Siltation" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="AgriculturalPractices" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Agricultural Practices</label>
+                            <input type="number" step="any" name="AgriculturalPractices" id="AgriculturalPractices" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="Encroachments" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Encroachments</label>
+                            <input type="number" step="any" name="Encroachments" id="Encroachments" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="IneffectiveDisasterPreparedness" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Disaster Preparedness</label>
+                            <input type="number" step="any" name="IneffectiveDisasterPreparedness" id="IneffectiveDisasterPreparedness" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="DrainageSystems" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Drainage Systems</label>
+                            <input type="number" step="any" name="DrainageSystems" id="DrainageSystems" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="CoastalVulnerability" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Coastal Vulnerability</label>
+                            <input type="number" step="any" name="CoastalVulnerability" id="CoastalVulnerability" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="Landslides" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Landslides</label>
+                            <input type="number" step="any" name="Landslides" id="Landslides" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="Watersheds" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Watersheds</label>
+                            <input type="number" step="any" name="Watersheds" id="Watersheds" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="DeterioratingInfrastructure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Infrastructure Deterioration</label>
+                            <input type="number" step="any" name="DeterioratingInfrastructure" id="DeterioratingInfrastructure" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="PopulationScore" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Population Score</label>
+                            <input type="number" step="any" name="PopulationScore" id="PopulationScore" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="WetlandLoss" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Wetland Loss</label>
+                            <input type="number" step="any" name="WetlandLoss" id="WetlandLoss" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="InadequatePlanning" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inadequate Planning</label>
+                            <input type="number" step="any" name="InadequatePlanning" id="InadequatePlanning" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+
+                        <div>
+                            <label for="PoliticalFactors" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Political Factors</label>
+                            <input type="number" step="any" name="PoliticalFactors" id="PoliticalFactors" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                            <i class="fas fa-bolt mr-2"></i> Predict Flood Risk
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="hidden mt-6 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600"></div>
+                    <p class="mt-2 text-gray-600 dark:text-gray-300">Analyzing flood risk factors...</p>
+                </div>
+
+                <!-- Prediction Result -->
+                <div id="prediction-result" class="mt-8"></div>
+                <div id="accuracy-result" class="mt-4 p-4 bg-yellow-100 text-yellow-800 font-semibold rounded-lg shadow-md text-center hidden">
+                    🔍 Model Accuracy: <span id="accuracy-value">--</span>%
+                </div>
+                </div>
+                
+                <!-- Safety Information -->
+                <div class="bg-beige-100 dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                    <h2 class="text-2xl font-bold mb-6 text-green-700 dark:text-green-400">Flood Safety Tips</h2>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-green-100 dark:bg-green-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-home text-green-600 dark:text-green-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">Before a Flood</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Know your area's flood risk</li>
+                                    <li>Elevate critical utilities</li>
+                                    <li>Install check valves in plumbing</li>
+                                    <li>Prepare sandbags</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-exclamation-triangle text-blue-600 dark:text-blue-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">During a Flood</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Move to higher ground immediately</li>
+                                    <li>Avoid walking or driving through flood waters</li>
+                                    <li>Stay tuned to weather reports</li>
+                                    <li>Turn off utilities if instructed</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-purple-100 dark:bg-purple-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-clinic-medical text-purple-600 dark:text-purple-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">After a Flood</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Avoid floodwaters (may be contaminated)</li>
+                                    <li>Be aware of areas where water has receded</li>
+                                    <li>Clean and disinfect everything that got wet</li>
+                                    <li>Watch for electrical hazards</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-lg">
+                        <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-2">Emergency Contacts</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center text-blue-700 dark:text-blue-200">
+                                <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <span>Local Emergency: 911</span>
+                            </li>
+                            <li class="flex items-center text-blue-700 dark:text-blue-200">
+                                <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <span>Flood Helpline: 1-800-FLOOD-99</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-globe text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <a href="#" class="text-blue-600 dark:text-blue-300 hover:underline">FEMA Flood Information</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historical Data Section -->
+            <div class="mt-16 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                <h2 class="text-2xl font-bold mb-6 text-green-700 dark:text-green-400">Historical Flood Data</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Flood Frequency by Month</h3>
+                        <div class="h-64">
+                            <canvas id="floodHistoryChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Severity Distribution</h3>
+                        <div class="h-64">
+                            <canvas id="floodSeverityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+            <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                <ul class="contact-list space-y-2 text-white">
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-envelope mt-1 mr-2"></i>
+                    <span>alerts@disasterpredict.org</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                    <span>+1 (555) 123-4567</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                    <span>123 Safety Ave, Resilience City</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+            </div>
+            </div>
+        </div>
+        </footer>
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart: Flood History
+    const historyCanvas = document.getElementById('floodHistoryChart');
+    if (historyCanvas) {
+        const historyCtx = historyCanvas.getContext('2d');
+        new Chart(historyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Flood Events',
+                    data: [5, 8, 12, 15, 20, 25, 28, 26, 18, 12, 8, 6],
+                    backgroundColor: '#388E3C',
+                    borderColor: '#2E7D32',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#333' } }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#333' }, grid: { color: 'rgba(0, 0, 0, 0.1)' } },
+                    x: { ticks: { color: '#333' }, grid: { color: 'rgba(0, 0, 0, 0.1)' } }
+                }
+            }
+        });
+    }
+
+    // Chart: Flood Severity
+    const severityCanvas = document.getElementById('floodSeverityChart');
+    if (severityCanvas) {
+        const severityCtx = severityCanvas.getContext('2d');
+        new Chart(severityCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Minor', 'Moderate', 'Severe', 'Extreme'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#F44336'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: 'blue' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Prediction Form Handler
+    const form = document.getElementById("floodPredictionForm");
+    if (form) {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const resultDiv = document.getElementById("prediction-result");
+            const loader = document.getElementById("loading-indicator");
+            resultDiv.innerHTML = "";
+            loader.classList.remove("hidden");
+
+            try {
+                const response = await fetch("/predict-flood", { method: "POST", body: formData });
+                const data = await response.json();
+                loader.classList.add("hidden");
+
+                resultDiv.innerHTML = `
+                    <div class="mt-4 p-4 text-lg font-semibold text-center rounded-lg ${
+                        data.result.includes("Flood") ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                    }">${data.result}</div>`;
+            } catch (err) {
+                loader.classList.add("hidden");
+                resultDiv.innerHTML = `<div class="text-red-600 font-semibold mt-4">Prediction failed. Please try again.</div>`;
+            }
+        });
+    }
+
+    // Mobile menu
+    const mobileMenuBtn = document.getElementById('mobileMenuButton');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function () {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.classList.toggle('hidden');
+        });
+    }
+
+    // Floating pagination
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const paginationLinks = document.querySelectorAll('.floating-pagination a');
+    paginationLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        link.classList.toggle('active', currentPage === linkPage);
+    });
+});
+const accuracyValue=90.19;
+// Show accuracy result
+const accuracyDiv = document.getElementById("accuracy-result");
+document.getElementById("accuracy-value").innerText = accuracyValue;
+accuracyDiv.classList.remove("hidden"); // Show the div
+</script>
+
+</body>
+</html>

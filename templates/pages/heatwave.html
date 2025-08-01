@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <!-- Same head section as flood.html -->
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatwave Prediction | Disaster Alert System</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+        <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+<body class="bg-white dark:bg-black text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Same header/navbar as flood.html -->
+
+    <!-- Hero Section with Video Background -->
+<section class="relative h-screen flex items-center justify-center overflow-hidden">
+    <style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+
+  <!-- Background Video -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-[-1] opacity-80 dark:opacity-100">
+    <source src="{{ url_for('static', filename='assets/videos/heatwave.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Optional Overlay (for readability) -->
+  <!-- <div class="absolute inset-0 bg-white/20 dark:bg-black/30 z-0"></div> -->
+
+  <!-- Hero Content -->
+  <div class="relative z-10 text-center px-4">
+<h1 class="text-4xl md:text-5xl font-bold mb-4">Heatwave Risk Monitoring</h1>
+<p class="text-lg md:text-xl max-w-2xl mx-auto">
+  Stay informed during extreme temperatures with AI models that predict and track dangerous heatwave patterns.
+</p>
+    <a href="#heatwavePredictionForm" class="mt-6 inline-block bg-blue-600 dark:bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+      Explore Features
+    </a>
+  </div>
+
+    </section>
+
+<main class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-red-700 dark:text-red-400">
+            <i class="fas fa-temperature-high mr-3"></i>Heatwave Prediction
+        </h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Prediction Form -->
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-6 text-center text-red-600 dark:text-red-400">Heatwave Prediction</h2>
+
+                <form id="predictionForm" method="POST" class="max-w-md mx-auto bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md transition-all duration-300">
+                    <!-- Max Temperature -->
+                    <div class="mb-4">
+                        <label for="temperature_max" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Max Temperature (°C)</label>
+                        <input type="number" step="0.1" name="temperature_max" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- Min Temperature -->
+                    <div class="mb-4">
+                        <label for="temperature_min" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Min Temperature (°C)</label>
+                        <input type="number" step="0.1" name="temperature_min" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- Max Humidity -->
+                    <div class="mb-4">
+                        <label for="humidity_max" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Max Humidity (%)</label>
+                        <input type="number" step="0.1" name="humidity_max" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- Min Humidity -->
+                    <div class="mb-4">
+                        <label for="humidity_min" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Min Humidity (%)</label>
+                        <input type="number" step="0.1" name="humidity_min" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- Precipitation Probability -->
+                    <div class="mb-4">
+                        <label for="precipitation" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Precipitation Probability (%)</label>
+                        <input type="number" step="0.1" name="precipitation" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- UV Index -->
+                    <div class="mb-4">
+                        <label for="uv_index" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">UV Index</label>
+                        <input type="number" step="0.1" name="uv_index" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- Visibility -->
+                    <div class="mb-4">
+                        <label for="visibility" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Visibility (km)</label>
+                        <input type="number" step="0.1" name="visibility" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300" />
+                    </div>
+
+                    <!-- Historical Data -->
+                    <div class="mb-4">
+                        <label for="historicalData" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Historical Heatwave Events?</label>
+                        <select name="historicalData" 
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <!-- Urban Heat Island Effect -->
+                    <div class="mb-6">
+                        <label for="urbanHeat" class="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Urban Heat Island Effect</label>
+                        <select name="urbanHeat" 
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white transition-all duration-300">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center">
+                        <i class="fas fa-fire mr-2"></i> Predict Heatwave Risk
+                    </button>
+                </form>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="hidden mt-6 text-center">
+                    <div class="inline-flex items-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-gray-600 dark:text-gray-300 font-medium">Analyzing weather patterns...</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mt-4">
+                        <div class="bg-gradient-to-r from-red-500 to-orange-500 h-2.5 rounded-full animate-pulse" style="width: 45%"></div>
+                    </div>
+                </div>
+                
+                <!-- Prediction Result -->
+                {% if prediction %}
+                <div class="mt-6 p-4 rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-gray-700 text-center">
+                    <h3 class="text-xl font-bold text-red-700 dark:text-red-400 mb-2">Prediction Result</h3>
+                    <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ prediction }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- Regression Visualization -->
+                <div id="regressionViz" class="mt-8 hidden">
+                    <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Heatwave Regression Model</h3>
+                    <div class="h-64">
+                        <canvas id="heatwaveChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Safety Information -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-lg transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-6 text-red-700 dark:text-red-400">Heatwave Safety Tips</h2>
+                
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 bg-red-100 dark:bg-red-900 p-2 rounded-full mr-4">
+                            <i class="fas fa-home text-red-600 dark:text-red-300"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1 text-gray-800 dark:text-white">Before a Heatwave</h3>
+                            <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                <li>Install window reflectors</li>
+                                <li>Weather-strip doors/windows</li>
+                                <li>Identify cooling centers</li>
+                                <li>Prepare emergency supplies</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 bg-orange-100 dark:bg-orange-900 p-2 rounded-full mr-4">
+                            <i class="fas fa-exclamation-triangle text-orange-600 dark:text-orange-300"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1 text-gray-800 dark:text-white">During a Heatwave</h3>
+                            <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                <li>Stay hydrated</li>
+                                <li>Limit outdoor activities</li>
+                                <li>Wear lightweight clothing</li>
+                                <li>Check on vulnerable neighbors</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full mr-4">
+                            <i class="fas fa-clinic-medical text-yellow-600 dark:text-yellow-300"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1 text-gray-800 dark:text-white">Recognizing Heat Illness</h3>
+                            <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                <li>Heat cramps: muscle pains</li>
+                                <li>Heat exhaustion: heavy sweating, weakness</li>
+                                <li>Heat stroke: high body temperature, confusion</li>
+                                <li>Seek medical help immediately for severe symptoms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-lg">
+                    <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-2">Emergency Contacts</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center text-blue-700 dark:text-blue-200">
+                            <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                            <span>Local Emergency: 911</span>
+                        </li>
+                        <li class="flex items-center text-blue-700 dark:text-blue-200">
+                            <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                            <span>Heat Helpline: 1-800-HEAT-99</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-globe text-blue-500 dark:text-blue-300 mr-2"></i>
+                            <a href="#" class="text-blue-600 dark:text-blue-300 hover:underline">NOAA Heat Safety</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Historical Data Section -->
+        <div class="mt-16 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300">
+            <h2 class="text-2xl font-bold mb-6 text-red-700 dark:text-red-400">Historical Heatwave Data</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Temperature Trends</h3>
+                    <div class="h-64">
+                        <canvas id="temperatureTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Heatwave Frequency</h3>
+                    <div class="h-64">
+                        <canvas id="frequencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            <section class="mt-16 py-10 px-4 bg-white dark:bg-gray-900 rounded-xl shadow-lg transition-all duration-300">
+        <h2 class="text-2xl font-bold text-center mb-6 text-red-700 dark:text-red-400">Heatwave Data Visualization</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Temperature Trend Chart -->
+            <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Monthly Temperature Trends</h3>
+            <div class="h-64">
+                <canvas id="temperatureTrendChart2"></canvas>
+            </div>
+            </div>
+
+            <!-- Heatwave Frequency Chart -->
+            <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Annual Heatwave Frequency</h3>
+            <div class="h-64">
+                <canvas id="frequencyChart2"></canvas>
+            </div>
+            </div>
+        </div>
+        </section>
+
+</main>
+
+            <!-- Footer -->
+                    <footer class="bg-green-800 text-white py-12">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                        </h3>
+                        <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                        <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold mb-4">Quick Links</h4>
+                        <ul class="space-y-2">
+                        <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                        <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                        <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                        <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold mb-4">Predictions</h4>
+                        <ul class="space-y-2">
+                        <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                        <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                        <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                        <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                        <ul class="contact-list space-y-2 text-white">
+                        <li class="contact-item flex items-start cursor-pointer">
+                            <i class="fas fa-envelope mt-1 mr-2"></i>
+                            <span>alerts@disasterpredict.org</span>
+                        </li>
+                        <li class="contact-item flex items-start cursor-pointer">
+                            <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="contact-item flex items-start cursor-pointer">
+                            <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                            <span>123 Safety Ave, Resilience City</span>
+                        </li>
+                        </ul>
+                    </div>
+                    </div>
+
+                    <div class="border-t border-green-700 mt-8 pt-8 text-center">
+                    <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+                    <div class="mt-4 flex justify-center space-x-4 text-sm">
+                        <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                        <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                        <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+                    </div>
+                    </div>
+                </div>
+                </footer>
+            <!-- Floating Pagination -->
+        <div class="floating-pagination">
+            <a href="{{ url_for('index') }}" data-title="Home" class="active">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+                <i class="fas fa-water"></i>
+            </a>
+            <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+                <i class="fas fa-fire"></i>
+            </a>
+            <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+                <i class="fas fa-mountain"></i>
+            </a>
+            <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+                <i class="fas fa-wind"></i>
+            </a>
+            <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+                <i class="fas fa-bolt"></i>
+            </a>
+            <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+                <i class="fas fa-temperature-high"></i>
+            </a>
+            <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+                <i class="fas fa-satellite-dish"></i>
+            </a>
+            <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+                <i class="fas fa-bell"></i>
+            </a>
+            <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+                <i class="fas fa-chart-bar"></i>
+            </a>
+        </div>
+            <!-- Scripts -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+    <script>
+                document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced Temperature Trend Chart
+            const tempTrendCtx = document.getElementById('temperatureTrendChart').getContext('2d');
+            new Chart(tempTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Average Temperature (°C)',
+                        data: [12, 14, 18, 22, 26, 30, 32, 31, 28, 23, 17, 13],
+                        borderColor: '#F44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#F44336',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#6B7280',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                color: '#6B7280'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6B7280'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Enhanced Heatwave Frequency Chart
+            const freqCtx = document.getElementById('frequencyChart').getContext('2d');
+            new Chart(freqCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Heatwave Days',
+                        data: [15, 18, 22, 25, 28, 31],
+                        backgroundColor: [
+                            'rgba(244, 67, 54, 0.7)',
+                            'rgba(255, 152, 0, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(76, 175, 80, 0.7)',
+                            'rgba(33, 150, 243, 0.7)',
+                            'rgba(156, 39, 176, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(244, 67, 54, 1)',
+                            'rgba(255, 152, 0, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(76, 175, 80, 1)',
+                            'rgba(33, 150, 243, 1)',
+                            'rgba(156, 39, 176, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#6B7280',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                color: '#6B7280',
+                                stepSize: 5
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6B7280'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Dark mode support for charts
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', function() {
+                setTimeout(() => {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    Chart.getChart('temperatureTrendChart').options.scales.x.ticks.color = isDark ? '#E5E7EB' : '#6B7280';
+                    Chart.getChart('temperatureTrendChart').options.scales.y.ticks.color = isDark ? '#E5E7EB' : '#6B7280';
+                    Chart.getChart('temperatureTrendChart').update();
+                    
+                    Chart.getChart('frequencyChart').options.scales.x.ticks.color = isDark ? '#E5E7EB' : '#6B7280';
+                    Chart.getChart('frequencyChart').options.scales.y.ticks.color = isDark ? '#E5E7EB' : '#6B7280';
+                    Chart.getChart('frequencyChart').update();
+                }, 100);
+            });
+
+            // Floating pagination active state
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const paginationLinks = document.querySelectorAll('.floating-pagination a');
+            
+            paginationLinks.forEach(link => {
+                const linkPage = link.getAttribute('href').split('/').pop();
+                if (currentPage === linkPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+        // Form loading indicator
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('predictionForm');
+            const loading = document.getElementById('loading-indicator');
+
+            form.addEventListener('submit', function () {
+                loading.classList.remove('hidden');
+            });
+        });
+        // Update active state in floating pagination
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const paginationLinks = document.querySelectorAll('.floating-pagination a');
+    
+    paginationLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (currentPage === linkPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+
+</script>
+
+
+</body>
+</html>

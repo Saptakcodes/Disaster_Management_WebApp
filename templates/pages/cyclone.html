@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Same head section as flood.html -->
+    <title>Cyclone Prediction | Disaster Alert System</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+        <!-- Animate.css CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Dark mode support -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // enables dark mode via class="dark"
+      theme: {
+        extend: {
+          colors: {
+            lightgreen: '#d0f0c0' // custom light green color
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+@keyframes pulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34,197,94, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(34,197,94, 0.3);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s ease-in-out infinite;
+}
+</style>
+
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<!-- Header/Navbar -->
+    <header class="sticky top-0 z-50 bg-green-700 dark:bg-green-800 text-white shadow-md">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="text-xl font-bold">DisasterAlert</span>
+            </div>
+
+            <div class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline active">Home</a>
+            <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+            <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+            <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+            <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+            <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+            <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+            <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+            <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+            <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+            <a href="{{ url_for('login') }}" class="relative px-4 py-0 rounded-md text-white bg-green-500 hover:bg-green-700 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-full bg-green-600 hover:bg-green-800 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white py-4 px-6">
+            <div class="flex flex-col space-y-3">
+               <a href="{{ url_for('index') }}" class="hover:text-gray-200 hover:underline">Home</a>
+                <a href="{{ url_for('flood') }}" class="hover:text-gray-200 hover:underline">Flood</a>
+                <a href="{{ url_for('fire') }}" class="hover:text-gray-200 hover:underline">Forest Fire</a>
+                <a href="{{ url_for('earthquake') }}" class="hover:text-gray-200 hover:underline">Earthquake</a>
+                <a href="{{ url_for('cyclone') }}" class="hover:text-gray-200 hover:underline">Cyclone</a>
+                <a href="{{ url_for('thunderstorm') }}" class="hover:text-gray-200 hover:underline">Thunderstorm</a>
+                <a href="{{ url_for('heatwave') }}" class="hover:text-gray-200 hover:underline">Heatwave</a>
+                <a href="{{ url_for('updates') }}" class="hover:text-gray-200 hover:underline">Updates</a>
+                <a href="{{ url_for('alerts') }}" class="hover:text-gray-200 hover:underline">Alerts</a>
+                <a href="{{ url_for('analysis') }}" class="hover:text-gray-200 hover:underline">Analysis</a>
+                <a href="{{ url_for('login') }}" class="relative px-4 py-1 rounded-md text-white bg-green-600 hover:bg-green-500 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg animate-pulse-slow">Login</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+<body class="bg-white dark:bg-black text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Same header/navbar as flood.html -->
+
+        <!-- Hero Section with Video Background -->
+<section class="relative h-screen flex items-center justify-center overflow-hidden">
+    <style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+
+  <!-- Background Video -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-[-1] opacity-80 dark:opacity-100">
+    <source src="{{ url_for('static', filename='assets/videos/cyclone_features.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Optional Overlay (for readability) -->
+  <!-- <div class="absolute inset-0 bg-white/20 dark:bg-black/30 z-0"></div> -->
+
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Real-Time Cyclone Tracking & Alerts</h1>
+            <p class="text-lg md:text-xl max-w-2xl mx-auto">
+            Monitor cyclone patterns with precision and receive AI-powered warnings to stay safe during critical weather conditions.
+            </p>
+            <a href="#cyclonePredictionForm" class="mt-6 inline-block bg-blue-600 dark:bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+            Explore Features
+            </a>
+        </div>
+
+        </section>
+
+
+   <main class="container mx-auto px-4 py-12">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl md:text-4xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">
+      <i class="fas fa-wind mr-3"></i>Cyclone Prediction
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Prediction Form -->
+      <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+        <h2 class="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">Enter Cyclone Features</h2>
+
+        <form id="cyclonePredictionForm" class="prediction-form" data-disaster-type="cyclone">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Latitude -->
+            <div>
+              <label for="lat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Latitude</label>
+              <input type="number" step="any" id="lat" name="lat" required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                placeholder="e.g., 19.36">
+            </div>
+
+            <!-- Longitude -->
+            <div>
+              <label for="long" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Longitude</label>
+              <input type="number" step="any" id="long" name="long" required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                placeholder="e.g., -82.20">
+            </div>
+
+            <!-- Wind Speed -->
+            <div>
+              <label for="wind" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Wind Speed (km/h)</label>
+              <input type="number" step="any" id="wind" name="wind" required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                placeholder="e.g., 72">
+            </div>
+
+            <!-- Atmospheric Pressure -->
+            <div>
+              <label for="pressure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Atmospheric Pressure (hPa)</label>
+              <input type="number" step="any" id="pressure" name="pressure" required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                placeholder="e.g., 903.64">
+            </div>
+
+            <!-- Tropical Storm Force Diameter -->
+            <div>
+              <label for="tropicalstorm_force_diameter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tropical Storm Force Diameter (km)</label>
+              <input type="number" step="any" id="tropicalstorm_force_diameter" name="tropicalstorm_force_diameter" required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                placeholder="e.g., 151.93">
+            </div>
+
+            <!-- Hurricane Force Diameter -->
+            <div>
+              <label for="hurricane_force_diameter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hurricane Force Diameter (km)</label>
+              <input type="number" step="any" id="hurricane_force_diameter" name="hurricane_force_diameter" required
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                placeholder="e.g., 45.61">
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <button type="submit"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center justify-center">
+              <i class="fas fa-satellite-dish mr-2"></i> Predict Cyclone Risk
+            </button>
+          </div>
+        </form>
+                    
+                    <!-- Loading Indicator -->
+                    <div id="loading-indicator" class="hidden mt-6 text-center">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+                        <p class="mt-2 text-gray-600 dark:text-gray-300">Processing satellite image with CNN model...</p>
+                    </div>
+                    
+                    <!-- Prediction Result -->
+                    <div id="prediction-result" class="mt-8"></div>
+                    <div id="cyclone-result" class="mt-8 px-6 py-4 rounded-xl shadow-md bg-gradient-to-r from-indigo-100 via-indigo-200 to-indigo-300 dark:from-indigo-900 dark:via-indigo-800 dark:to-indigo-700 text-center text-xl font-bold text-indigo-900 dark:text-indigo-100 transition-all duration-500 ease-in-out">
+                        <!-- Prediction will appear here -->
+                    </div>
+                    
+                    <!-- Image Analysis -->
+                    <div id="imageAnalysis" class="mt-8 hidden">
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Image Analysis</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="text-sm font-medium mb-2">Uploaded Satellite Image</h4>
+                                <img id="uploadedImage" src="#" alt="Uploaded satellite image" class="w-full h-48 object-cover rounded-lg border border-gray-300 dark:border-gray-600">
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium mb-2">Cyclone Pattern Recognition</h4>
+                                <img id="analysisImage" src="#" alt="Cyclone analysis" class="w-full h-48 object-cover rounded-lg border border-gray-300 dark:border-gray-600">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h4 class="text-sm font-medium mb-2">Cyclone Features</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <div class="bg-indigo-50 dark:bg-indigo-900 p-2 rounded-lg text-center">
+                                    <div class="text-xs text-indigo-600 dark:text-indigo-300">Eye Diameter</div>
+                                    <div class="font-bold text-indigo-800 dark:text-indigo-200" id="eyeDiameter">-- km</div>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900 p-2 rounded-lg text-center">
+                                    <div class="text-xs text-indigo-600 dark:text-indigo-300">Cloud Top Temp</div>
+                                    <div class="font-bold text-indigo-800 dark:text-indigo-200" id="cloudTemp">-- °C</div>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900 p-2 rounded-lg text-center">
+                                    <div class="text-xs text-indigo-600 dark:text-indigo-300">Symmetry Index</div>
+                                    <div class="font-bold text-indigo-800 dark:text-indigo-200" id="symmetryIndex">--</div>
+                                </div>
+                                <div class="bg-indigo-50 dark:bg-indigo-900 p-2 rounded-lg text-center">
+                                    <div class="text-xs text-indigo-600 dark:text-indigo-300">Rotation Speed</div>
+                                    <div class="font-bold text-indigo-800 dark:text-indigo-200" id="rotationSpeed">-- rpm</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Safety Information -->
+                <div class="bg-beige-100 dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                    <h2 class="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">Cyclone Safety Tips</h2>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-indigo-100 dark:bg-indigo-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-home text-indigo-600 dark:text-indigo-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">Before a Cyclone</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Secure your property</li>
+                                    <li>Prepare emergency kit</li>
+                                    <li>Identify evacuation routes</li>
+                                    <li>Trim trees and secure loose items</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-purple-100 dark:bg-purple-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-exclamation-triangle text-purple-600 dark:text-purple-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">During a Cyclone</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Stay indoors away from windows</li>
+                                    <li>Turn off utilities if instructed</li>
+                                    <li>Listen to emergency broadcasts</li>
+                                    <li>Evacuate if ordered by authorities</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900 p-2 rounded-full mr-4">
+                                <i class="fas fa-clinic-medical text-blue-600 dark:text-blue-300"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold mb-1 text-gray-800 dark:text-white">After a Cyclone</h3>
+                                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-600 dark:text-gray-300">
+                                    <li>Wait for official all-clear</li>
+                                    <li>Be aware of damaged infrastructure</li>
+                                    <li>Avoid floodwaters</li>
+                                    <li>Check on neighbors</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-lg">
+                        <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-2">Emergency Contacts</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center text-blue-700 dark:text-blue-200">
+                                <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <span>Local Emergency: 911</span>
+                            </li>
+                            <li class="flex items-center text-blue-700 dark:text-blue-200">
+                                <i class="fas fa-phone-alt text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <span>Cyclone Helpline: 1-800-CYCLONE</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-globe text-blue-500 dark:text-blue-300 mr-2"></i>
+                                <a href="#" class="text-blue-600 dark:text-blue-300 hover:underline">National Hurricane Center</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historical Data Section -->
+            <div class="mt-16 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition">
+                <h2 class="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">Historical Cyclone Data</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Cyclone Tracks</h3>
+                        <div class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                            <img src="https://via.placeholder.com/600x300/1e3a8a/ffffff?text=Cyclone+Track+Map" alt="Historical cyclone tracks" class="w-full h-full object-cover rounded-lg">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-bold mb-4 text-gray-800 dark:text-white">Intensity Distribution</h3>
+                        <div class="h-64">
+                            <canvas id="intensityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+            <footer class="bg-green-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-shield-alt mr-2"></i> DisasterAlert
+                </h3>
+                <p class="mb-4">Providing AI-powered disaster predictions to keep communities safe worldwide.</p>
+                <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-beige-300"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="transition hover:text-green-300 hover:underline">Home</a></li>
+                <li><a href="{{ url_for('alerts') }}" class="transition hover:text-green-300 hover:underline">Alerts</a></li>
+                <li><a href="{{ url_for('updates') }}" class="transition hover:text-green-300 hover:underline">Recent Updates</a></li>
+                <li><a href="{{ url_for('analysis') }}" class="transition hover:text-green-300 hover:underline">Analysis</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4">Predictions</h4>
+                <ul class="space-y-2">
+                <li><a href="{{ url_for('flood') }}" class="transition hover:text-green-300 hover:underline">Flood</a></li>
+                <li><a href="{{ url_for('fire') }}" class="transition hover:text-green-300 hover:underline">Forest Fire</a></li>
+                <li><a href="{{ url_for('earthquake') }}" class="transition hover:text-green-300 hover:underline">Earthquake</a></li>
+                <li><a href="{{ url_for('cyclone') }}" class="transition hover:text-green-300 hover:underline">Cyclone</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-4 text-white">Contact Us</h4>
+                <ul class="contact-list space-y-2 text-white">
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-envelope mt-1 mr-2"></i>
+                    <span>alerts@disasterpredict.org</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-phone-alt mt-1 mr-2"></i>
+                    <span>+1 (555) 123-4567</span>
+                </li>
+                <li class="contact-item flex items-start cursor-pointer">
+                    <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                    <span>123 Safety Ave, Resilience City</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="border-t border-green-700 mt-8 pt-8 text-center">
+            <p>&copy; 2023 Disaster Prediction & Alert System. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4 text-sm">
+                <a href="#" class="hover:glow transition hover:text-green-300">Privacy Policy</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Terms of Service</a>
+                <a href="#" class="hover:glow transition hover:text-green-300">Disclaimer</a>
+            </div>
+            </div>
+        </div>
+        </footer>
+    <!-- Floating Pagination -->
+<div class="floating-pagination">
+    <a href="{{ url_for('index') }}" data-title="Home" class="active">
+        <i class="fas fa-home"></i>
+    </a>
+    <a href="{{ url_for('flood') }}" data-title="Flood Prediction">
+        <i class="fas fa-water"></i>
+    </a>
+    <a href="{{ url_for('fire') }}" data-title="Forest Fire Prediction">
+        <i class="fas fa-fire"></i>
+    </a>
+    <a href="{{ url_for('earthquake') }}" data-title="Earthquake Prediction">
+        <i class="fas fa-mountain"></i>
+    </a>
+    <a href="{{ url_for('cyclone') }}" data-title="Cyclone Prediction">
+        <i class="fas fa-wind"></i>
+    </a>
+    <a href="{{ url_for('thunderstorm') }}" data-title="Thunderstorm Prediction">
+        <i class="fas fa-bolt"></i>
+    </a>
+    <a href="{{ url_for('heatwave') }}" data-title="Heatwave Prediction">
+        <i class="fas fa-temperature-high"></i>
+    </a>
+    <a href="{{ url_for('updates') }}" data-title="Real-time Updates">
+        <i class="fas fa-satellite-dish"></i>
+    </a>
+    <a href="{{ url_for('alerts') }}" data-title="Emergency Alerts">
+        <i class="fas fa-bell"></i>
+    </a>
+    <a href="{{ url_for('analysis') }}" data-title="Disaster Analysis">
+        <i class="fas fa-chart-bar"></i>
+    </a>
+</div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/themeToggle.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Image preview and analysis simulation
+            document.getElementById('satelliteImage').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.getElementById('uploadedImage').src = event.target.result;
+                        // Simulate analysis image (in real app this would come from backend)
+                        document.getElementById('analysisImage').src = "https://via.placeholder.com/400x300/4f46e5/ffffff?text=Cyclone+Analysis";
+                        
+                        // Simulate analysis data
+                        document.getElementById('eyeDiameter').textContent = "25-30 km";
+                        document.getElementById('cloudTemp').textContent = "-70 °C";
+                        document.getElementById('symmetryIndex').textContent = "0.82";
+                        document.getElementById('rotationSpeed').textContent = "0.15 rpm";
+                        
+                        document.getElementById('imageAnalysis').classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Initialize charts
+            const intensityCtx = document.getElementById('intensityChart').getContext('2d');
+            new Chart(intensityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tropical Depression', 'Tropical Storm', 'Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5'],
+                    datasets: [{
+                        data: [15, 25, 20, 15, 12, 8, 5],
+                        backgroundColor: [
+                            '#E0E0E0',
+                            '#90CAF9',
+                            '#64B5F6',
+                            '#42A5F5',
+                            '#2196F3',
+                            '#1E88E5',
+                            '#1565C0'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+
+        // Update active state in floating pagination
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const paginationLinks = document.querySelectorAll('.floating-pagination a');
+    
+    paginationLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (currentPage === linkPage) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+});
+    </script>
+
+    <script>
+    document.getElementById('cyclonePredictionForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const data = {
+            lat: parseFloat(document.getElementById('lat').value),
+            long: parseFloat(document.getElementById('long').value),
+            wind: parseFloat(document.getElementById('wind').value),
+            pressure: parseFloat(document.getElementById('pressure').value),
+            tropicalstorm_force_diameter: parseFloat(document.getElementById('tropicalstorm_force_diameter').value),
+            hurricane_force_diameter: parseFloat(document.getElementById('hurricane_force_diameter').value),
+        };
+
+        fetch('/predict-cyclone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            const resultDiv = document.getElementById('cyclone-result');
+            resultDiv.textContent = res.result || "❌ Prediction error";
+        })
+        .catch(err => {
+            document.getElementById('cyclone-result').textContent = "❌ Request failed";
+        });
+    });
+</script>
+</body>
+</html>
